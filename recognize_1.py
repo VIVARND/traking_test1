@@ -1,14 +1,15 @@
 import cv2
-#카메라 열기
-cap = cv2.VideoCapture(0)
 
-# 다운로드해 둔 cascade 파일 직접 경로 지정
+# libcamera 스트리밍 주소
+cap = cv2.VideoCapture("tcp://127.0.0.1:8554")  
+
+# Haar Cascade 파일 경로 (홈 디렉토리)
 face_cascade = cv2.CascadeClassifier("/home/user/haarcascade_frontalface_default.xml")
 
 while True:
     ret, frame = cap.read()
     if not ret:
-        break
+        continue
 
     gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
     faces = face_cascade.detectMultiScale(gray, 1.3, 5)
