@@ -3,7 +3,7 @@ import cv2
 # OpenCV 내장 haarcascade XML 경로
 face_cascade = cv2.CascadeClassifier(cv2.data.haarcascades + "haarcascade_frontalface_default.xml")
 
-cap = cv2.VideoCapture("tcp://127.0.0.1:8889")  # rpicam-vid 실행 포트 맞춰야 함
+cap = cv2.VideoCapture("tcp://127.0.0.1:8888")  # rpicam-vid 실행 포트 맞춰야 함
 
 while True:
     ret, frame = cap.read()
