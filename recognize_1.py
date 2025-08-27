@@ -2,48 +2,41 @@ import cv2
 from picamera2 import Picamera2
 import mediapipe as mp
 
-# -----------------------------
-# 1. Mediapipe 설정
-# -----------------------------
-mp_face = mp.solutions.face_detection
-mp_drawing = mp.solutions.drawing_utils
-face_detector = mp_face.FaceDetection(model_selection=1, min_detection_confidence=0.5)
+# 카메라 해상도 설정
+CAM_WIDTH, CAM_HEIGHT = 1280, 720
 
-# -----------------------------
-# 2. Picamera2 설정 (원본 해상도)
-# -----------------------------
+# Mediapipe 얼굴 검출 초기화
+mp_face = mp.solutions.face_detection
+mp_draw = mp.solutions.drawing_utils
+face_detector = mp_face.FaceDetection(model_selection=0, min_detection_confidence=0.5)
+
+# 카메라 설정
 picam2 = Picamera2()
-picam2.configure(picam2.create_preview_configuration(main={"size": (1280, 720), "format": "RGB888"}))
+preview_config = picam2.create_preview_configuration(main={"size": (CAM_WIDTH, CAM_HEIGHT), "format": "RGB888"})
+picam2.configure(preview_config)
 picam2.start()
 
-# -----------------------------
-# 3. OpenCV 창 설정 (풀스크린)
-# -----------------------------
+# OpenCV 창 설정
 cv2.namedWindow("Face Tracking", cv2.WINDOW_NORMAL)
-cv2.setWindowProperty("Face Tracking", cv2.WND_PROP_FULLSCREEN, cv2.WINDOW_FULLSCREEN)
+cv2.resizeWindow("Face Tracking", CAM_WIDTH, CAM_HEIGHT)
 
-# -----------------------------
-# 4. 루프 시작
-# -----------------------------
 while True:
     frame = picam2.capture_array()
-    frame_rgb = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
+    frame_rgb = cv2.cvtColor(frame, cv2.COLOR_RGB2BGR)
 
-    # 얼굴 탐지
+    # Mediapipe 얼굴 탐지
     results = face_detector.process(frame_rgb)
 
-    # 얼굴 위치 그리기
     if results.detections:
-        for detection in results.detections:
-            mp_drawing.draw_detection(frame, detection)
+        for det in results.detections:
+            mp_draw.draw_detection(frame_rgb, det)
 
-    cv2.imshow("Face Tracking", frame)
+    # 화면 출력
+    cv2.imshow("Face Tracking", frame_rgb)
 
+    # q 누르면 종료
     if cv2.waitKey(1) & 0xFF == ord('q'):
         break
 
-# -----------------------------
-# 5. 종료 처리
-# -----------------------------
 cv2.destroyAllWindows()
 picam2.stop()
